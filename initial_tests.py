@@ -1,5 +1,8 @@
 from structs.message import Message
+from structs.workspace import Workspace
 
-m = Message('whats up', '1224wiaer', 'eojeowq01', '12ej39')
-print(m)
-print(m.message_id)
+M1 = Message('message content', 'author_id', 'channel_id')
+print(M1)
+print(M1.message_id)
+
+W1 = Workspace('Workspace 1 Title')
