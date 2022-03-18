@@ -1,2 +1,4 @@
 # slack-backend
-ds4300 project
+DS4300 Final Project
+
+Replicating Slack’s backend data architecture and basic functionalities with AWS Cloud, NoSQL, and Distributed Computing technologies.
