@@ -1,6 +1,4 @@
-from structs.message import Message
-
-
+from models.message import Message
 
 class User:
     def __init__(self, username: str, user_id: str =None):
@@ -10,6 +8,7 @@ class User:
         self.username = username
         self.profilePicture = 'Default Image'
         self.channels = set()
+        self.directChannels = set()
         self.settings = {} #{'brightness':0.80, '}
         self.friends = set()
         self.blocked = set()
