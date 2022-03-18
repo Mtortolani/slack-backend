@@ -1,5 +1,4 @@
-from structs.message import Message
-from structs.workspace import Workspace
+from models import Message, Workspace
 
 M1 = Message('message content', 'author_id', 'channel_id')
 print(M1)
