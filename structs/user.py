@@ -7,4 +7,6 @@ class User:
         self.channel_id = channel_id
         
     def __str__(self):
+        '''
+        '''
         return str(self.content)
