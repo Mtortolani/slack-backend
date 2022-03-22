@@ -3,7 +3,6 @@
 
 class Message:
     def __init__(self, content, author_id: str = None, channel_id: str = None):
-
         #PK
         self.message_id = None
         #FK
@@ -13,6 +12,17 @@ class Message:
         self.content = content
     
 
-        
     def __str__(self):
         return str(self.content)
+    
+    def getId(self):
+        return self.message_id
+    
+    def getAuthorId(self):
+        return self.author_id
+    
+    def getChanneId(self):
+        return self.channel_id
+    
+    
+    

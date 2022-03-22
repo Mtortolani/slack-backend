@@ -13,13 +13,20 @@ class User:
         self.friends = set()
         self.blocked = set()
         
+
+    
+    #id
+    def getId(self):
+        return self.user_id
+    
+    #username 
     def __str__(self):
         return str(self.username)
     
-    
-    
+    #profile picture
+    def getProfilePicture(self):
+        return
     def setProfilePicture(self, image):
-        
         if image == None:
             self.profilePicture = 'Default Image'
         else:

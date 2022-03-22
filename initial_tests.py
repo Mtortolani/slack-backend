@@ -10,7 +10,7 @@ W1 = Workspace('Workspace 1 Title')
 
 
 
-m = Message('whats up', '1224wiaer', 'eojeowq01', '12ej39')
+m = Message('message content')
 print(m)
 print(m.message_id)
 

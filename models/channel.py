@@ -1,5 +1,3 @@
-from django.forms import NullBooleanField
-
 
 class Channel:
     def __init__(self, workspace_id: str):
@@ -8,11 +6,11 @@ class Channel:
         #FK
         self.workspace_id = None
         #Attributes
-        self.isDirect = None
-        self.isPrivate = True
+        self.directChannel = None
+        self.private = True
         self.banned = set()
         self.roles = {} #{owners:[user1], administrators:[user5, user8], etc}
-        self.channels = set()
+
     
     #id
     def getId(self):
@@ -22,15 +20,15 @@ class Channel:
     
     #direct
     def isDirect(self):
-        return self.isDirect
+        return self.directChannel
     
     #private
     def isPrivate(self):
-        return self.isPrivate
+        return self.private
     def makePrivate(self):
-        self.isPrivate = True
+        self.private = True
     def makePublic(self):
-        self.isPrivate = False
+        self.private = False
     
     #banned
     def getBanned(self):
@@ -39,3 +37,12 @@ class Channel:
         self.banned.add(userId)
     def unBanUser(self, userId):
         self.banned.discard(userId)
+        
+    #roles
+    def getRoles(self):
+        return self.roles
+    def addRole(self, role, user):
+        if not role in self.roles:
+            self.roles[role] = user
+        else:
+            self.roles[role].append(user)
