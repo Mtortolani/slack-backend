@@ -1,7 +1,7 @@
 from models.message import Message
 
 class User:
-    def __init__(self, username: str, user_id: str =None):
+    def __init__(self, username: str, user_id: int):
         #PK
         self.user_id = user_id
         #Attributes
