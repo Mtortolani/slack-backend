@@ -28,14 +28,15 @@ class User:
         return
     def setProfilePicture(self, image):
         if image == None:
-            self.profilePicture = 'Default Image'
+            self.delProfilePicture()
         else:
             self.profilePicture = image
+    def delProfilePicture(self):
+        self.profilePicture = None
             
-    
+    #channels
     def joinChannel(self, channel_id: str):
         self.channels.add(channel_id)
-        
     def leaveChannel(self, channel_id:str):
         self.channels.discard(channel_id)
 

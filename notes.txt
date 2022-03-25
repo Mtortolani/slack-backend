@@ -1,0 +1,45 @@
+Practical data filling process
+
+
+[randtext create user (100)]
+
+{users:{
+    user1: dm(user3){
+        messages:
+    }
+    user2:
+    user3: dm(user1)}
+ 
+ 
+ 
+random.pick user in usersDict:
+    pick another user
+        create direct channel between them
+        #note direct channel will have random name
+
+for user in Users
+pick random user that has dm's
+
+pcik a random user
+    that user creates a wrokspace
+    user automacially becoems president of workspace
+
+pick random workspace
+    president of orkspace creates a channel
+    
+pick random channel in wporkspace:
+    user with channel access posts into channel
+    
+create new user:
+ user sends 5 DM
+ makes 4 FILE_ATTRIBUTE_NO_SCRUB_DATA
+ user changes settigns
+ 
+{workspaces:{
+    workspace1:
+    workspace2:
+    workspace3:
+    
+}}
+        
+
