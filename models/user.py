@@ -21,7 +21,7 @@ class User:
     
     #username 
     def __str__(self):
-        return str(self.username)
+        return f'Username: {self.username}, id: {self.user_id}'
     
     #profile picture
     def getProfilePicture(self):
