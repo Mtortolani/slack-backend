@@ -41,6 +41,14 @@ def generate_random_users(count: int=10):
 
     return users
 
+def generate_random_connections(count: int=5):
+    # list of all users (ids)
+    users = r.get('users')
+    for user in users:
+        for i in range(count):
+            # Operation to generate relationship
+            r.set()
+
 
 '''
 Simple test to check if server is functioning
