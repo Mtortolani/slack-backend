@@ -1,3 +1,4 @@
+from typing import Sized
 import redis
 
 import random
@@ -16,6 +17,13 @@ r = redis.Redis(host='localhost', port=6379, db=0)
 #     print(n)
 #     print(int(num))
 
+def generate_random_string(size: int=10):
+    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=size))
+
+def generate_random_message():
+    words = [generate_random_string() for i in range(random.randint(3,10))]
+    return ' '.join(words)
+
 def generate_random_users(count: int=10):
     # Get the current id counter from redis
     id = int(r.get('next_user_id'))
@@ -24,7 +32,7 @@ def generate_random_users(count: int=10):
     users = []
     for i in range(count):
         # Randomly generate a username of length 10 (letters and numbers)
-        username = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+        username = generate_random_string()
         user = User(username, id+i)
         users.append(user)
 
@@ -54,6 +62,6 @@ for user in generate_random_users():
 # print(r.get('next_user_id'))
 # a()
 
-        
+print(generate_random_message())
 
 
