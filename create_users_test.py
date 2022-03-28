@@ -10,13 +10,6 @@ from models.channel import Channel
 # Setup Redis client
 r = redis.Redis(host='localhost', port=6379, db=0)
 
-# def a():
-#     num = r.get('next_user_id')
-#     n = int.from_bytes(num, 'big')
-#     # print(r.get('next_user_id'))
-#     print(n)
-#     print(int(num))
-
 def generate_random_string(size: int=10):
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=size))
 
@@ -49,6 +42,31 @@ def generate_random_connections(count: int=5):
             # Operation to generate relationship
             r.set()
 
+def generate_random_data(users: int=10, workspaces: int=2, channels: int=3, direct_channels: int=1):
+    # Clear all previous data
+    r.flushall()
+    # Set id counters
+    r.set('next_user_id', 0)
+    r.set('next_workspace_id', 0)
+    r.set('next_channel_id', 0)
+    # r.set('next_direct_channel_id', 0)
+    r.set('next_message_id', 0)
+
+    # Create workspaces
+    for _ in range(workspaces):
+        ws_id = r.get("next_workspace_id")
+
+        # Randomly generate users in this workspace
+        user_list = random.sample(range(users), users//2)
+        for usr in user_list:
+            r.lpush(f'workspace_{ws_id}_users', usr)
+
+        # Increment id counter
+        r.incr('next_workspace_id')
+
+
+    pass
+
 
 '''
 Simple test to check if server is functioning
@@ -72,4 +90,4 @@ for user in generate_random_users():
 
 print(generate_random_message())
 
-
+generate_random_data()

@@ -10,6 +10,9 @@ Replicating Slack’s backend data architecture and basic functionalities with A
 <b>Workspaces</b>: key = workspace_{id} -> value = hashmap: {users: [list of user ids], channels: [list of channel ids]}, Ex. workspace_17 -> {users: [1,2,3,6], channels: [4,16,19,100]}<br>
 <b>Channels</b>: key = channel_{id} -> value = hashmap: {users: [list of user ids], messages: [list of message ids]}, Ex. channel_19 -> {users: [1,3], messages: [300,423]}
 
+## Note
+Can't store Redis data structures within one another, Ex. Can't store list inside hashset
+
 ## Resources
 https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-example-creating-buckets.html
 
