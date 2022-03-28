@@ -72,6 +72,9 @@ def generate_random_data(users: int=10, workspaces: int=2, channels: int=3, dire
             # Increment id counter
             r.incr('next_channel_id')
 
+            # Add channel to workspace
+            r.lpush(f'workspace_{ws_id}_channels', channel_id)
+
             for channel_user in random.sample(user_list, users//4):
                 r.lpush(f'channel_{channel_id}_users', channel_user)
 
@@ -82,7 +85,28 @@ def generate_random_data(users: int=10, workspaces: int=2, channels: int=3, dire
         r.incr('next_user_id')
 
         dc = random.sample(range(users), direct_channels+1)
-        r.set(f'user_{user_id}', 1)
+        count = 0
+        for dc_user in dc:
+            # If given number of direct channels have been created
+            if count == direct_channels:
+                break
+            # If the user isn't creating a direct channel with themselves
+            if user_id != dc_user:
+                r.lpush(f'user_{user_id}_dcs', dc_user)
+                # # Create direct channel
+                # dc_id = int(r.get('next_direct_channel_id'))
+                count+=1
+
+
+    # Generate random messages
+    for user in range(users):
+        for m in range(messages):
+            message_id = int(r.get('next_message_id'))
+            # Increment id counter
+            r.incr('next_message_id')
+            r.hset(f'message_{message_id}', 'sender', user)
+            r.hset(f'message_{message_id}', 'message', generate_random_message())
+            
 
 
 '''
