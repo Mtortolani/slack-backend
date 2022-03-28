@@ -42,30 +42,47 @@ def generate_random_connections(count: int=5):
             # Operation to generate relationship
             r.set()
 
-def generate_random_data(users: int=10, workspaces: int=2, channels: int=3, direct_channels: int=1):
+def generate_random_data(users: int=10, workspaces: int=2, channels: int=3, direct_channels: int=1, messages: int=5):
+    '''
+    Creates a database with the given number of users, workspaces, channels in each workspace, direct channels for each user, and messages by each user
+    '''
     # Clear all previous data
     r.flushall()
     # Set id counters
     r.set('next_user_id', 0)
     r.set('next_workspace_id', 0)
     r.set('next_channel_id', 0)
-    # r.set('next_direct_channel_id', 0)
+    r.set('next_direct_channel_id', 0)
     r.set('next_message_id', 0)
 
     # Create workspaces
     for _ in range(workspaces):
-        ws_id = r.get("next_workspace_id")
-
-        # Randomly generate users in this workspace
-        user_list = random.sample(range(users), users//2)
-        for usr in user_list:
-            r.lpush(f'workspace_{ws_id}_users', usr)
-
+        ws_id = int(r.get("next_workspace_id"))
         # Increment id counter
         r.incr('next_workspace_id')
 
+        # Randomly generate users of this workspace
+        user_list = random.sample(range(users), users//2)
+        for ws_user in user_list:
+            r.lpush(f'workspace_{ws_id}_users', ws_user)
 
-    pass
+        # Randomly generate channels in this workspace and populate with users
+        for _ in range(channels):
+            channel_id = int(r.get('next_channel_id'))
+            # Increment id counter
+            r.incr('next_channel_id')
+
+            for channel_user in random.sample(user_list, users//4):
+                r.lpush(f'channel_{channel_id}_users', channel_user)
+
+    # Create users with their direct channels
+    for _ in range(users):
+        user_id = int(r.get('next_user_id'))
+        # Increment id counter
+        r.incr('next_user_id')
+
+        dc = random.sample(range(users), direct_channels+1)
+        r.set(f'user_{user_id}', 1)
 
 
 '''
