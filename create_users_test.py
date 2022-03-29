@@ -20,7 +20,7 @@ def generate_random_message():
 def generate_random_users(count: int=10):
     # Get the current id counter from redis
     id = int(r.get('next_user_id'))
-    id = 0
+    id = 0 #TODO: check why do we reset to 0?
 
     users = []
     for i in range(count):
@@ -108,27 +108,30 @@ def generate_random_data(users: int=10, workspaces: int=2, channels: int=3, dire
             r.hset(f'message_{message_id}', 'message', generate_random_message())
             
 
+def main():
+    '''
+    Simple test to check if server is functioning
+    '''
+    r.flushdb()
+    r.set('foo', 'bar')
+    print(f"Result: {r.get('foo')}")
+    print(r.keys())
 
-'''
-Simple test to check if server is functioning
-'''
-r.flushall()
-r.set('foo', 'bar')
-print(f"Result: {r.get('foo')}")
-print(r.keys())
+    r.set('next_user_id', 0)
 
-r.set('next_user_id', 0)
+    '''
+    Testing random user generation function
+    '''
+    for user in generate_random_users():
+        print(user)
 
-'''
-Testing random user generation function
-'''
-for user in generate_random_users():
-    print(user)
+    # r.set('next_user_id', 0)
+    # print(r.get('next_user_id'))
+    # a()
 
-# r.set('next_user_id', 0)
-# print(r.get('next_user_id'))
-# a()
+    print(generate_random_message())
 
-print(generate_random_message())
+    generate_random_data()
 
-generate_random_data()
+if __name__ == '__main__':
+    main()

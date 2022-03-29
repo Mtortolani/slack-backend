@@ -1,4 +1,7 @@
+
 import redis
+
+# import models
 from models.user import User
 from models.channel import Channel
 
