@@ -17,34 +17,35 @@ def generate_random_message():
     words = [generate_random_string() for i in range(random.randint(3,10))]
     return ' '.join(words)
 
-def generate_random_users(count: int=10):
-    # Get the current id counter from redis
-    id = int(r.get('next_user_id'))
-    id = 0 #TODO: check why do we reset to 0?
+# def generate_random_users(count: int=10):
+#     # Get the current id counter from redis
+#     id = int(r.get('next_user_id'))
+#     id = 0 #TODO: check why do we reset to 0?
 
-    users = []
-    for i in range(count):
-        # Randomly generate a username of length 10 (letters and numbers)
-        username = generate_random_string()
-        user = User(username, id+i)
-        users.append(user)
+#     users = []
+#     for i in range(count):
+#         # Randomly generate a username of length 10 (letters and numbers)
+#         username = generate_random_string()
+#         user = User(username, id+i)
+#         users.append(user)
 
-    # Increment user id counter in redis by the number of users created
-    r.set('next_user_id', id+count)
+#     # Increment user id counter in redis by the number of users created
+#     r.set('next_user_id', id+count)
 
-    return users
+#     return users
 
-def generate_random_connections(count: int=5):
-    # list of all users (ids)
-    users = r.get('users')
-    for user in users:
-        for i in range(count):
-            # Operation to generate relationship
-            r.set()
+# def generate_random_connections(count: int=5):
+#     # list of all users (ids)
+#     users = r.get('users')
+#     for user in users:
+#         for i in range(count):
+#             # Operation to generate relationship
+#             r.set()
 
-def generate_random_data(users: int=10, workspaces: int=2, channels: int=3, direct_channels: int=1, messages: int=5):
+def generate_random_data(users: int=10, workspaces: int=2, channels: int=3, direct_channels: int=1, channel_messages: int=5, direct_messages: int=2):
     '''
-    Creates a database with the given number of users, workspaces, channels in each workspace, direct channels for each user, and messages by each user
+    Creates a database with the given number of users, workspaces, channels in each workspace, direct channels created by each user, messages by each user in channels,
+    and messages by each user in direct channels.
     '''
     # Clear all previous data
     r.flushall()
@@ -61,10 +62,17 @@ def generate_random_data(users: int=10, workspaces: int=2, channels: int=3, dire
         # Increment id counter
         r.incr('next_workspace_id')
 
-        # Randomly generate users of this workspace
-        user_list = random.sample(range(users), users//2)
-        for ws_user in user_list:
+        if _ % 2 == 0:
+            workspace_user_list = list(range(0, users//2 + 1))
+        else:
+            workspace_user_list = list(range(users//2 - 1, users))
+
+        # # Randomly generate users of this workspace
+        # user_list = random.sample(range(users), users//2)
+        for ws_user in workspace_user_list:
             r.lpush(f'workspace_{ws_id}_users', ws_user)
+            # Add workspace to user's list
+            r.lpush(f'user_{ws_user}_workspaces', ws_id)
 
         # Randomly generate channels in this workspace and populate with users
         for _ in range(channels):
@@ -75,8 +83,28 @@ def generate_random_data(users: int=10, workspaces: int=2, channels: int=3, dire
             # Add channel to workspace
             r.lpush(f'workspace_{ws_id}_channels', channel_id)
 
-            for channel_user in random.sample(user_list, users//4):
+            if _ % 2 == 0:
+                channel_user_list = workspace_user_list[:len(workspace_user_list)//2 + 1]
+            else:
+                channel_user_list = workspace_user_list[len(workspace_user_list)//2 - 1:]
+
+            for channel_user in channel_user_list:
                 r.lpush(f'channel_{channel_id}_users', channel_user)
+                # Add channel to user's list
+                r.lpush(f'user_{channel_user}_channels', channel_id)
+
+    # Generate random channel messages
+    for user in range(users):
+        for m in range(channel_messages):
+            message_id = int(r.get('next_message_id'))
+            # Increment id counter
+            r.incr('next_message_id')
+            r.hset(f'message_{message_id}', 'sender', user)
+            r.hset(f'message_{message_id}', 'message', generate_random_message())
+            # Add message to user's list and random user's channel list
+            # r.lpush(f'user_{user}_messages', message_id)
+            user_channels = [int(channel_id) for channel_id in r.lrange(f'user_{user}_channels', 0, -1)]
+            r.lpush(f'channel_{random.sample(user_channels, 1)[0]}_messages', message_id)
 
     # Create users with their direct channels
     for _ in range(users):
@@ -92,21 +120,30 @@ def generate_random_data(users: int=10, workspaces: int=2, channels: int=3, dire
                 break
             # If the user isn't creating a direct channel with themselves
             if user_id != dc_user:
+                # Save each other's user id
                 r.lpush(f'user_{user_id}_dcs', dc_user)
-                # # Create direct channel
-                # dc_id = int(r.get('next_direct_channel_id'))
+                r.lpush(f'user_{dc_user}_dcs', user_id)
+                # # Create direct channel and create messages
+                dc_id = int(r.get('next_direct_channel_id'))
+                # Increment id counter
+                r.incr('next_direct_channel_id')
+                message_id = int(r.get('next_message_id'))
+                # Increment id counter
+                r.incr('next_message_id')
+                r.hset(f'message_{message_id}', 'sender', user_id)
+                r.hset(f'message_{message_id}', 'message', generate_random_message())
+                # Add message to direct channel's list
+                r.lpush(f'dc_{dc_id}_messages', message_id)
                 count+=1
 
 
-    # Generate random messages
-    for user in range(users):
-        for m in range(messages):
-            message_id = int(r.get('next_message_id'))
-            # Increment id counter
-            r.incr('next_message_id')
-            r.hset(f'message_{message_id}', 'sender', user)
-            r.hset(f'message_{message_id}', 'message', generate_random_message())
-            
+# '''
+# Simple test to check if server is functioning
+# '''
+# r.flushall()
+# r.set('foo', 'bar')
+# print(f"Result: {r.get('foo')}")
+# print(r.keys())
 
 def main():
     '''
@@ -122,8 +159,8 @@ def main():
     '''
     Testing random user generation function
     '''
-    for user in generate_random_users():
-        print(user)
+    # for user in generate_random_users():
+    #     print(user)
 
     # r.set('next_user_id', 0)
     # print(r.get('next_user_id'))
