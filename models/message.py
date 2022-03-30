@@ -12,20 +12,6 @@ class Message:
     def __str__(self):
         return str(self.content)
     
-    # #id
-    # def getId(self):
-    #     return self.message_id
-    #author_id
-    def getAuthorId(self):
-        return self.author_id
-    
-    #content
-    def getContent(self):
-        return self.content
-    def setContent(self, content):
-        self.content = content
-    
-    
-    
+   
     
     

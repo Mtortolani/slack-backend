@@ -43,25 +43,23 @@ class Generator:
         channel = Channel()
         return channel
     
-    def generate_random_direct_channel(self, user_1: User, user_2: User):
-        dc = DirectChannel(user_1, user_2)
+    def generate_random_direct_channel(self, n_messages: int = 10):
+        user_pair = [i for i in self.mongo.user_col.aggregate([{'$sample':{'size':2}}])]
+        dc = DirectChannel(user_pair[0], user_pair[1])
+        dc.messages = [self.generate_random_message() for _ in range(n_messages)]
         return dc
 
-    def generate_random_workspace(self):
+    def generate_random_workspace(self, n_users: int = 10, n_channels: int = 10, n_msg_per_chnl: int = 20):
         workspace_name = self.generate_random_string()
-        space = Workspace(workspace_name)
-        return space
-        
-    
+        workspace = Workspace(workspace_name)
+        workspace.member_ids = [i['user_id'] for i in self.mongo.user_col.aggregate([{'$sample':{'size':n_users}}])]
+        workspace.channels = [self.generate_random_channel() for _ in range(n_channels)]
+        for channel in workspace.channels:
+            channel.name = self.generate_random_string()
+            channel.messages = [self.generate_random_message() for _ in range(n_msg_per_chnl)]
+        return workspace
         
 
-# def generate_random_connection():
-#     # list of all users (ids)
-#     users = mongo.user_col.find()
-#     for user in users:
-#         for i in range(count):
-#             # TODO: Operation to generate relationship
-#             pass #
     
     
 def random_data_test(user_count: int=100, workspace_count: int=5, channel_count: int=10,
@@ -80,24 +78,15 @@ def random_data_test(user_count: int=100, workspace_count: int=5, channel_count:
         
     # make direct channels with messages
     for _ in range(direct_channel_count):
-        user_pair = [i for i in mongo.user_col.aggregate([{'$sample':{'size':2}}])]
-        dc = g.generate_random_direct_channel(user_pair[0], user_pair[1])
-        dc.messages = [g.generate_random_message() for _ in range(message_count)]
+        dc = g.generate_random_direct_channel(message_count)
         mongo.direct_col.insert_one({'member_ids': dc.member_ids, 
                                      'messages': dc.messages})
 
     # make workspaces with members and channels and messages
     for _ in range(workspace_count):
-        workspace = g.generate_random_workspace()
-        workspace.member_ids = [i['user_id'] for i in mongo.user_col.aggregate([{'$sample':{'size':7}}])]
-        workspace.channels = [g.generate_random_channel() for _ in range(channel_count)]
-        for channel in workspace.channels:
-            channel.name = g.generate_random_string()
-            channel.messages = [g.generate_random_message() for _ in range(message_count)]
-        
-        workspace_dict = {'members':workspace.member_ids,
-                          'channels': {channel.name: channel.messages for channel in workspace.channels}}
-        mongo.workspace_col.insert_one(workspace_dict)
+        workspace = g.generate_random_workspace(10, channel_count, message_count)
+        mongo.workspace_col.insert_one({'members':workspace.member_ids,
+                          'channels': {channel.name: channel.messages for channel in workspace.channels}})
 
 
 def main():
