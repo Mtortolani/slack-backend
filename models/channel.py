@@ -1,5 +1,8 @@
 from models.message import Message
 from models.user import User
+
+import collections
+
 class Channel:
     def __init__(self):
         #Attributes
@@ -15,4 +18,6 @@ class DirectChannel(Channel):
         super().__init__()
         self.private = True
         self.member_ids = [user_1['user_id'], user_2['user_id']]
-        
+
+    def sorted_member_ids(self):
+        return collections.sorted(self.member_ids)
