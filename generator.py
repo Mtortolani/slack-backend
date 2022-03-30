@@ -49,21 +49,21 @@ class Generator:
         dc.messages = [self.generate_random_message() for _ in range(n_messages)]
         return dc
 
-    def generate_random_workspace(self, n_users: int = 10, n_channels: int = 10, n_msg_per_chnl: int = 20):
+    def generate_random_workspace(self, n_users: int = 10, n_channels: int = 10, n_msgs_per_chnl: int = 20):
         workspace_name = self.generate_random_string()
         workspace = Workspace(workspace_name)
         workspace.member_ids = [i['user_id'] for i in self.mongo.user_col.aggregate([{'$sample':{'size':n_users}}])]
         workspace.channels = [self.generate_random_channel() for _ in range(n_channels)]
         for channel in workspace.channels:
             channel.name = self.generate_random_string()
-            channel.messages = [self.generate_random_message() for _ in range(n_msg_per_chnl)]
+            channel.messages = [self.generate_random_message() for _ in range(n_msgs_per_chnl)]
         return workspace
         
 
     
     
-def random_data_test(user_count: int=100, workspace_count: int=5, channel_count: int=10,
-                     direct_channel_count: int=20, message_count: int=50):
+def random_data_test(user_count: int=100, workspace_count: int=50, channel_count: int=10,
+                     direct_channel_count: int=20, n_msgs_per_chnl: int=50):
     '''
     Creates a database with the given number of users, workspaces, channels in each workspace, direct channels for each user, and messages by each user
     '''
@@ -78,13 +78,13 @@ def random_data_test(user_count: int=100, workspace_count: int=5, channel_count:
         
     # make direct channels with messages
     for _ in range(direct_channel_count):
-        dc = g.generate_random_direct_channel(message_count)
+        dc = g.generate_random_direct_channel(n_msgs_per_chnl)
         mongo.direct_col.insert_one({'member_ids': dc.member_ids, 
                                      'messages': dc.messages})
 
     # make workspaces with members and channels and messages
     for _ in range(workspace_count):
-        workspace = g.generate_random_workspace(10, channel_count, message_count)
+        workspace = g.generate_random_workspace(10, channel_count, n_msgs_per_chnl)
         mongo.workspace_col.insert_one({'members':workspace.member_ids,
                           'channels': {channel.name: channel.messages for channel in workspace.channels}})
 
