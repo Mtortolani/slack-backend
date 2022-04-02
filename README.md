@@ -16,5 +16,8 @@ Can't store Redis data structures within one another, Ex. Can't store list insid
 ## Resources
 https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-example-creating-buckets.html
 
+### PySpark Tutorial
+https://www.guru99.com/pyspark-tutorial.html
+
 ## Tips
 Cmd + Shift + V to preview Markdown File
