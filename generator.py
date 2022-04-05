@@ -37,15 +37,23 @@ class Generator:
     def generate_random_user(self):
         username = self.generate_random_string()
         user = User(username)
+        settings = UserSetting()
+        settings.notifications = self.generate_notifications()
+        settings.language = self.generate_random_language()
+        settings.time_zone = self.generate_random_timezone()
         return user
     
     def generate_random_channel(self):
         channel = Channel()
+        settings.censored_words = [self.generate_random_string() for i in range(random.randint(3,10))]
+        settings.archive = self.generate_random_archive()
         return channel
     
     def generate_random_direct_channel(self, n_messages: int = 10):
         user_pair = [i for i in self.mongo.user_col.aggregate([{'$sample':{'size':2}}])]
         dc = DirectChannel(user_pair[0], user_pair[1])
+        dc.censored_words = [self.generate_random_string() for i in range(random.randint(3,10))]
+        dc.archive = self.generate_random_archive()
         dc.messages = [self.generate_random_message() for _ in range(n_messages)]
         return dc
 
@@ -58,7 +66,23 @@ class Generator:
             channel.name = self.generate_random_string()
             channel.messages = [self.generate_random_message() for _ in range(n_msgs_per_chnl)]
         return workspace
-        
+
+
+        # For Settings
+    def generate_random_language(self):
+        language_list =  ["German","English","Spanish","French","Italian","Portuguese","Russian","Japanese","Chinese","Korean"]
+        return random.choice(language_list)
+
+    def generate_random_timezone(self):
+        timezones = ['EST', 'CST', 'MST', 'PST', 'AST', 'AKST', 'HST']
+        return random.choice(timezones)
+
+    def generate_notifications(self):
+        return bool(random.getrandbits(1))
+
+    def generate_random_archive(self):
+        return bool(random.getrandbits(1))
+
 
     
     
@@ -74,7 +98,8 @@ def random_data_test(user_count: int=100, workspace_count: int=50, channel_count
         user = g.generate_random_user()
         mongo.user_col.insert_one({
             'user_id': user.user_id,
-            'username': user.username})
+            'username': user.username
+            'settings': user.setttings})
         
     # make direct channels with messages
     for _ in range(direct_channel_count):
@@ -86,7 +111,8 @@ def random_data_test(user_count: int=100, workspace_count: int=50, channel_count
     for _ in range(workspace_count):
         workspace = g.generate_random_workspace(10, channel_count, n_msgs_per_chnl)
         mongo.workspace_col.insert_one({'members':workspace.member_ids,
-                          'channels': {channel.name: channel.messages for channel in workspace.channels}})
+                          'channels': {channel.name: channel.messages for channel in workspace.channels}
+                          'settings':channel.settings})
 
 
 def main():
