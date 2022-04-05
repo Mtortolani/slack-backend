@@ -7,7 +7,7 @@ class ChannelSetting:
     
 #  user settings: language, notifications   
 class UserSetting:
-  def __init__(self, language: str= 'English', notifications: bool = "None", time_zone: str = 'EST'):
+  def __init__(self, language: str= 'English', notifications: bool = True, time_zone: str = 'EST'):
     self.notifications = notifications
     self.language = language
     self.time_zone = time_zone

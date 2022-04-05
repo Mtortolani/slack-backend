@@ -1,6 +1,6 @@
 from models.message import Message
 from models.user import User
-from models.setting import ChannelSetting
+from models.settings import ChannelSetting
 
 class Channel:
     def __init__(self):
@@ -10,7 +10,7 @@ class Channel:
         self.banned = []
         self.roles = {} #{owners:[user1], administrators:[user5, user8], etc}
         self.messages = []
-        self.setting = ChannelSetting()
+        self.settings = ChannelSetting()
 
 
 class DirectChannel(Channel):
@@ -18,4 +18,4 @@ class DirectChannel(Channel):
         super().__init__()
         self.private = True
         self.member_ids.update([user_1['user_id'], user_2['user_id']])
-        self.setting = ChannelSetting()
+        self.settings = ChannelSetting()
