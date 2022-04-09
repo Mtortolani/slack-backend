@@ -36,8 +36,8 @@ class Generator:
         return ' '.join(words)
 
     def generate_random_user(self):
-        username = self.generate_random_string()
-        user = User(username)
+        name = self.generate_random_string()
+        user = User(name)
         settings = UserSetting()
         settings.notifications = self.generate_notifications()
         settings.language = self.generate_random_language()
@@ -46,7 +46,8 @@ class Generator:
         return user
     
     def generate_random_channel(self):
-        channel = Channel()
+        name = self.generate_random_string()
+        channel = Channel(name)
         settings = ChannelSetting()
         settings.censored_words = [self.generate_random_string() for i in range(random.randint(3,10))]
         settings.archive = self.generate_random_archive()
@@ -107,7 +108,7 @@ def random_data_test(user_count: int=100, workspace_count: int=50, channel_count
         user = g.generate_random_user()
         mongo.user_col.insert_one({
             'user_id': user.user_id,
-            'username': user.username,
+            'name': user.name,
             'settings': {'notifications': user.settings.notifications,
                          'language': user.settings.language,
                          'time_zone': user.settings.time_zone}})
@@ -123,8 +124,9 @@ def random_data_test(user_count: int=100, workspace_count: int=50, channel_count
     # make workspaces with members and channels and messages
     for _ in range(workspace_count):
         workspace = g.generate_random_workspace(10, channel_count, n_msgs_per_chnl)
-        mongo.workspace_col.insert_one({'members':workspace.member_ids,
-                          'channels': {channel.name: channel.messages for channel in workspace.channels},})
+        mongo.workspace_col.insert_one({'name':workspace.name,
+                                        'members':workspace.member_ids,
+                                        'channels': {channel.name: channel.messages for channel in workspace.channels},})
         # TODO: Inesrt settings into workspace channels
 
 def main():

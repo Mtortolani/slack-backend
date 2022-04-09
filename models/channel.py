@@ -3,8 +3,9 @@ from models.user import User
 from models.settings import ChannelSetting
 
 class Channel:
-    def __init__(self):
+    def __init__(self, name:str=None):
         #Attributes
+        self.name = name
         self.private = False
         self.member_ids = set()
         self.banned = []
