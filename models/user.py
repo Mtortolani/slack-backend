@@ -3,11 +3,11 @@ from models.message import Message
 from models.settings import UserSetting
 
 class User:
-    def __init__(self, username: str):
+    def __init__(self, name: str):
         #PK
         self.user_id = random.randint(10**9,10**10)
         #Attributes
-        self.username = username
+        self.name = name
         self.profilePicture = 'Default Image'
         self.channels = set()
         self.directChannels = set()

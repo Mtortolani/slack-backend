@@ -8,6 +8,7 @@ from pymongo import MongoClient
 from models.user import User
 from models.channel import *
 from models.workspace import Workspace
+from models.settings import *
 import redis
 
 # Setup Mongo client
@@ -35,18 +36,22 @@ class Generator:
         return ' '.join(words)
 
     def generate_random_user(self):
-        username = self.generate_random_string()
-        user = User(username)
+        name = self.generate_random_string()
+        user = User(name)
         settings = UserSetting()
         settings.notifications = self.generate_notifications()
         settings.language = self.generate_random_language()
         settings.time_zone = self.generate_random_timezone()
+        user.settings = settings
         return user
     
     def generate_random_channel(self):
-        channel = Channel()
+        name = self.generate_random_string()
+        channel = Channel(name)
+        settings = ChannelSetting()
         settings.censored_words = [self.generate_random_string() for i in range(random.randint(3,10))]
         settings.archive = self.generate_random_archive()
+        channel.settings = settings
         return channel
     
     def generate_random_direct_channel(self, n_messages: int = 10):
@@ -55,6 +60,11 @@ class Generator:
         dc.censored_words = [self.generate_random_string() for i in range(random.randint(3,10))]
         dc.archive = self.generate_random_archive()
         dc.messages = [self.generate_random_message() for _ in range(n_messages)]
+        
+        settings = ChannelSetting()
+        settings.censored_words = [self.generate_random_string() for i in range(random.randint(3,10))]
+        settings.archive = self.generate_random_archive()
+        dc.settings = settings
         return dc
 
     def generate_random_workspace(self, n_users: int = 10, n_channels: int = 10, n_msgs_per_chnl: int = 20):
@@ -98,22 +108,26 @@ def random_data_test(user_count: int=100, workspace_count: int=50, channel_count
         user = g.generate_random_user()
         mongo.user_col.insert_one({
             'user_id': user.user_id,
-            'username': user.username
-            'settings': user.setttings})
+            'name': user.name,
+            'settings': {'notifications': user.settings.notifications,
+                         'language': user.settings.language,
+                         'time_zone': user.settings.time_zone}})
         
     # make direct channels with messages
     for _ in range(direct_channel_count):
         dc = g.generate_random_direct_channel(n_msgs_per_chnl)
-        mongo.direct_col.insert_one({'member_ids': dc.member_ids, 
-                                     'messages': dc.messages})
+        mongo.direct_col.insert_one({'member_ids': list(dc.member_ids), # NOTE: CHANGING FROM SET To LIST 
+                                     'messages': dc.messages,
+                                     'settings':{'censored_words': list(dc.settings.censored_words), # NOTE: CHANGING FROM SET To LIST
+                                                 'archive': dc.settings.archive}})
 
     # make workspaces with members and channels and messages
     for _ in range(workspace_count):
         workspace = g.generate_random_workspace(10, channel_count, n_msgs_per_chnl)
-        mongo.workspace_col.insert_one({'members':workspace.member_ids,
-                          'channels': {channel.name: channel.messages for channel in workspace.channels}
-                          'settings':channel.settings})
-
+        mongo.workspace_col.insert_one({'name':workspace.name,
+                                        'members':workspace.member_ids,
+                                        'channels': {channel.name: channel.messages for channel in workspace.channels},})
+        # TODO: Inesrt settings into workspace channels
 
 def main():
     mongo = MongoDatabase()
