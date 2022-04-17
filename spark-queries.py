@@ -71,13 +71,15 @@ class SparkQuery:
     # find all messages in direct channel between two users
     # will return empty list if no direct channel between two users exists
     def dirChannelMessages(self, user_id_1: int, user_id_2: int):
+        x = 4561059137
+        y = 5313694500
         df = self.spark.read\
                 .option("database", self.database)\
                     .option("collection", "direct_col")\
                         .format("com.mongodb.spark.sql.DefaultSource").load()
         df = self.sqlC.sql(f'''select * from direct_col 
                            where array_contains(members, {user_id_1})
-                           AND array_contains(members, {user_id_2}''')
+                           AND array_contains(members, {user_id_2})''')
         df.filter(array_contains('member_ids',[user_id_1,user_id_2])) 
                        
 def main():
