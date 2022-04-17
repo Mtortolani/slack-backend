@@ -41,9 +41,6 @@ class MongoSearch():
     
     
 
-    
-
-
 def main():
     MG = MongoSearch()
     user_ids = MG.randomUsersIds(10)
