@@ -39,7 +39,7 @@ class SparkQuery:
         df =self.sqlC.sql('SELECT * FROM user_col')
         df.show()
 
-    def randomUserIds(self, count:int = 1) -> list:
+    def randomUsersIds(self, count:int = 1) -> list:
         # pick a random user(s)
         df = self.spark.read\
             .option("database", self.database)\
@@ -61,7 +61,6 @@ class SparkQuery:
         df.createOrReplaceTempView('workspace_col')
         df = self.sqlC.sql(f'''select * from workspace_col 
                            where array_contains(members, {user_id})''')
-        df.show()
         workspace_ids = []
         for row in df.collect():
             workspace_ids.append(row[0][0])
@@ -87,7 +86,7 @@ class SparkQuery:
 def main():
     SQ = SparkQuery('slack_database','user_col')
     SQ.checkSchema()
-    randomId = SQ.randomUserIds(10)
+    randomId = SQ.randomUsersIds(10)
     print(randomId)
     workspacesForUser = SQ.workspaceByUser(randomId[0])
     print(workspacesForUser)
