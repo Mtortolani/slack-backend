@@ -8,6 +8,7 @@ class MongoSearch():
     def __init__(self):
         self.client = MongoClient("mongodb://localhost:27017/")
         self.db = self.client['slack_database']
+        
     # pick a random user
     def randomUsersIds(self, count:int = 1) -> list:
         return [i['user_id'] for i in self.db.user_col.aggregate([{'$sample':{'size': count}}])]
@@ -32,9 +33,9 @@ class MongoSearch():
             usernames.append(user['name'])
         return usernames
 
-    # pull all messages in channel
+    # pull all messages from a channel in workspace given channel _id
 
-    # pull all messages in channel posted by certain user
+    # pull all messages in channel in a workspace posted by certain user by user_id
 
 
 

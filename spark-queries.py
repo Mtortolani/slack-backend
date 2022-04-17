@@ -5,7 +5,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
 from pyspark.sql.functions import *
-from mongo_queries import workspaceByUser
+
 
 class SparkQuery:
     def __init__(self, database: str = 'slack_database', col: str = 'user_col'):
@@ -24,8 +24,8 @@ class SparkQuery:
                             .config("spark.mongodb.output.uri", self.mongo_url + self.database +'.'+ self.col)\
                                 .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector_2.12:3.0.1')\
                                     .getOrCreate()
-                        
         self.sqlC = SQLContext(self.spark)
+        
     def checkSchema(self):
         # print out schema format for current collection
         df = self.spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
