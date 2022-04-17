@@ -26,19 +26,6 @@ class MongoSearch():
     def dirChannelMessages(self, user_id_1: int, user_id_2: int):
         return [i['messages'] for i in self.db.direct_col.find({'member_ids':{'$all':[user_id_1, user_id_2]}})]
 
-    # find names of all users in a random workspace
-    # THIS ONE IS RANDOM
-    def userNamesInRandomWorkspace(self)->list:
-        workspaces = [i for i in self.db.workspace_col.aggregate([{'$sample':{'size': 1}}])]
-        workspace_id = workspaces[0]['_id']
-        user_ids = [i['members'] for i in self.db.workspace_col.find({'_id':workspace_id})][0]
-        usernames = []
-        for user_id in user_ids:
-            user =  self.db.user_col.find_one({'user_id': user_id})
-            usernames.append(user['name'])
-        return usernames
-
-
     # find names of all users in a workspace by workspace_id
     def usersInWorkspace(self, workspace_id)->list:
         user_ids = [i['members'] for i in self.db.workspace_col.find({'_id':workspace_id})][0]
