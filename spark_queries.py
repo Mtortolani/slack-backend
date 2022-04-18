@@ -107,6 +107,18 @@ class SparkQuery:
                            where _id.oid = '{workspace_id}'""")
         dir_member_ids = df.collect()[0][0]
         return dir_member_ids
+    
+    # find names of all available channels in workspace
+    def channelNamesInWorkspace(self, workspace_id)->list:
+        df = self.spark.read\
+                .option("database", self.database)\
+                    .option("collection", "workspace_col")\
+                        .format("com.mongodb.spark.sql.DefaultSource").load()
+        df.createOrReplaceTempView('workspace_col')
+        df = self.sqlC.sql(f"""select channels from workspace_col 
+                           where _id.oid = '{workspace_id}'""")
+        channel_names = [name for name, messages in df.collect()[0][0].items()]
+        return channel_names
 
                        
 def main():
@@ -121,6 +133,7 @@ def main():
     workspaceIds = SQ.randomWorkspaceIds(10)
     usersForWorkspace = SQ.usersInWorkspace(workspaceIds[0])
     print(usersForWorkspace)
+    print(SQ.channelNamesInWorkspace(workspaceIds[0]))
 
 if __name__ == '__main__':
     main()

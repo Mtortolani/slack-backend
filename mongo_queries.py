@@ -1,7 +1,5 @@
 import json
 from pymongo import MongoClient
-# client = MongoClient("mongodb://localhost:27017/")
-# db = client['slack_database']
 
 
 class MongoSearch():
@@ -42,7 +40,7 @@ class MongoSearch():
     # potential new queries to test:
 
     # find all available channels in a random workspace
-
+    # NOTE: returns error NoneType Subscriptable
     def channelNamesInRandomWorkspace(self)->list:
         workspaces = [i for i in self.db.workspace_col.aggregate([{'$sample':{'size': 1}}])]
         workspace_id = workspaces[0]['_id']
@@ -52,17 +50,27 @@ class MongoSearch():
             channel =  self.db.user_col.find_one({'channel_id': channel_id})
             channel_names.append(channel['name'])
         return channel_names
+
+    # find names of all available channels in a workspace
+    def channelNamesInWorkspace(self, workspace_id)->list:
+        workspaces = [i for i in self.db.workspace_col.aggregate([{'$sample':{'size': 1}}])]
+        workspace_id = workspaces[0]['_id']
+        channels = [i['channels'] for i in self.db.workspace_col.find({'_id':workspace_id})][0]
+        channel_names = [names for names, messages in channels.items()]
+        return channel_names
         
-    
+
 
 def main():
+    
     MG = MongoSearch()
     user_ids = MG.randomUsersIds(10)
     print(MG.workspaceByUser(user_ids[0]))
     print(MG.dirChannelMessages(user_ids[0], user_ids[1]))
-    
     workspace_id = MG.randomWorkspaceIds()[0]
     print(MG.usersInWorkspace(workspace_id))
+    print(MG.channelNamesInWorkspace(workspace_id))
+    
     
 
 if __name__ == '__main__':
