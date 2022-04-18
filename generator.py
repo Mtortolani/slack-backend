@@ -96,7 +96,7 @@ class Generator:
 
     
     
-def random_data_test(user_count: int=1000, workspace_count: int=100, channel_count: int=50,
+def random_data_test(user_count: int=1000, workspace_count: int=100, channel_count: int=5,
                      direct_channel_count: int=400, n_msgs_per_chnl: int=50):
     '''
     Creates a database with the given number of users, workspaces, channels in each workspace, direct channels for each user, and messages by each user

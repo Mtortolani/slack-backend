@@ -25,6 +25,7 @@ class MongoSearch():
         return [i['messages'] for i in self.db.direct_col.find({'member_ids':{'$all':[user_id_1, user_id_2]}})]
 
     # find names of all users in a workspace by workspace_id
+    # TODO: This is returns username, spark version returns user_id
     def usersInWorkspace(self, workspace_id)->list:
         user_ids = [i['members'] for i in self.db.workspace_col.find({'_id':workspace_id})][0]
         usernames = []
@@ -33,12 +34,6 @@ class MongoSearch():
             usernames.append(user['name'])
         return usernames
     
-    # pull all messages from a channel in workspace given channel _id
-
-    # pull all messages in channel in a workspace posted by certain user by user_id
-
-    # potential new queries to test:
-
     # find all available channels in a random workspace
     # NOTE: returns error NoneType Subscriptable
     def channelNamesInRandomWorkspace(self)->list:
@@ -53,12 +48,20 @@ class MongoSearch():
 
     # find names of all available channels in a workspace
     def channelNamesInWorkspace(self, workspace_id)->list:
-        workspaces = [i for i in self.db.workspace_col.aggregate([{'$sample':{'size': 1}}])]
-        workspace_id = workspaces[0]['_id']
         channels = [i['channels'] for i in self.db.workspace_col.find({'_id':workspace_id})][0]
         channel_names = [names for names, messages in channels.items()]
         return channel_names
-        
+    
+    # find the channels in a workspace that are private
+    # TODO: Fix channel settings in workspace
+    # TODO: Fix this function
+    # def privateChannelsInWorkspace(self, workspace_id)->list:
+    #     channel_names = [i['channels'] for i in self.db.workspace_col.find({'_id':workspace_id})][0]
+    #     private_channels = []
+    #     for channel_name in channel_names:
+    #         channel =  self.db.user_col.find_one({'private': true})       
+    #         private_channels.append(channel['private'])
+    #     return private_channels
 
 
 def main():
@@ -70,6 +73,7 @@ def main():
     workspace_id = MG.randomWorkspaceIds()[0]
     print(MG.usersInWorkspace(workspace_id))
     print(MG.channelNamesInWorkspace(workspace_id))
+    # print(MG.privateChannelsInWorkspace(workspace_id))
     
     
 

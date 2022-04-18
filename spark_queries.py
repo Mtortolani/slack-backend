@@ -24,6 +24,8 @@ class SparkQuery:
                             .config("spark.mongodb.output.uri", self.mongo_url + self.database +'.'+ self.col)\
                                 .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector_2.12:3.0.1')\
                                     .getOrCreate()
+        # self.spark.conf.set("spark.executor.memory", "2g")
+        # self.spark.conf.set("spark.executor.cores", "2")
         self.sqlC = SQLContext(self.spark)
         
     def checkSchema(self):
@@ -96,7 +98,8 @@ class SparkQuery:
             dir_workspace_ids.append(row[0])
         return dir_workspace_ids
     
-    # find all users in a workspace
+    # find all user ids in a workspace
+    # TODO: make the same as mongo version, return username instead of id
     def usersInWorkspace(self, workspace_id)->list:
         df = self.spark.read\
                 .option("database", self.database)\
@@ -126,13 +129,10 @@ def main():
     SQ.checkSchema()
     userIds = SQ.randomUsersIds(10)
     print(userIds)
-    workspacesForUser = SQ.workspaceByUser(userIds[0])
-    print(workspacesForUser)
-    dir_channels = SQ.dirChannelMessages(userIds[0], userIds[1])
-    print(dir_channels)
+    print(SQ.workspaceByUser(userIds[0]))
+    print(SQ.dirChannelMessages(userIds[0], userIds[1]))
     workspaceIds = SQ.randomWorkspaceIds(10)
-    usersForWorkspace = SQ.usersInWorkspace(workspaceIds[0])
-    print(usersForWorkspace)
+    print(SQ.usersInWorkspace(workspaceIds[0]))
     print(SQ.channelNamesInWorkspace(workspaceIds[0]))
 
 if __name__ == '__main__':
