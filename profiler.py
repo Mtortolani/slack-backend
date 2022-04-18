@@ -100,7 +100,7 @@ class Profiler:
         spark_iterative_data = self.convert_cumulative_to_iterative(spark_cumulative_data)
 
 
-        return {'mongo_c': mongo_cumulative_data, 'mongo_i': mongo_iterative_data, 'spark_c': spark_cumulative_data, 'spark_i': spark_iterative_data}
+        return {'mongo_c': mongo_cumulative_data.tolist(), 'mongo_i': mongo_iterative_data.tolist(), 'spark_c': spark_cumulative_data.tolist(), 'spark_i': spark_iterative_data.tolist()}
 
 
     def collect_performance_data_fixed_iters(self,function1, function2, iterations: int=100):
@@ -132,7 +132,7 @@ class Profiler:
         mongo_iterative_data = self.convert_cumulative_to_iterative(mongo_cumulative_data)
         spark_iterative_data = self.convert_cumulative_to_iterative(spark_cumulative_data)
 
-        return {'mongo_c': mongo_cumulative_data, 'mongo_i': mongo_iterative_data, 'spark_c': spark_cumulative_data, 'spark_i': spark_iterative_data}
+        return {'mongo_c': mongo_cumulative_data.tolist(), 'mongo_i': mongo_iterative_data.tolist(), 'spark_c': spark_cumulative_data.tolist(), 'spark_i': spark_iterative_data.tolist()}
 
 
     def convert_cumulative_to_iterative(self, cumulative_data):
