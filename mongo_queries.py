@@ -39,20 +39,20 @@ class MongoSearch():
 
     # pull all messages in channel in a workspace posted by certain user by user_id
 
-# potential new queries to test:
+    # potential new queries to test:
 
-# find all available channels in a workspace
+    # find all available channels in a random workspace
 
-def channelNamesInRandomWorkspace()->list:
-    workspaces = [i for i in db.workspace_col.aggregate([{'$sample':{'size': 1}}])]
-    workspace_id = workspaces[0]['_id']
-    channel_ids = [i['channels'] for i in db.workspace_col.find({'_id':workspace_id})][0]
-    channel_names = []
-    for channel_id in channel_ids:
-        channel =  db.user_col.find_one({'channel_id': channel_id})
-        channel_names.append(channel['name'])
-    return channel_names
-    
+    def channelNamesInRandomWorkspace(self)->list:
+        workspaces = [i for i in self.db.workspace_col.aggregate([{'$sample':{'size': 1}}])]
+        workspace_id = workspaces[0]['_id']
+        channel_ids = [i['channels'] for i in self.db.workspace_col.find({'_id':workspace_id})][0]
+        channel_names = []
+        for channel_id in channel_ids:
+            channel =  self.db.user_col.find_one({'channel_id': channel_id})
+            channel_names.append(channel['name'])
+        return channel_names
+        
     
 
 def main():

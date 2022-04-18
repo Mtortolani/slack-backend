@@ -38,9 +38,9 @@ class SparkQuery:
         df.createOrReplaceTempView('user_col')
         df =self.sqlC.sql('SELECT * FROM user_col')
         df.show()
-
+        
+    # pick a random user(s)
     def randomUsersIds(self, count:int = 1) -> list:
-        # pick a random user(s)
         df = self.spark.read\
             .option("database", self.database)\
                 .option("collection", "user_col")\
@@ -51,6 +51,19 @@ class SparkQuery:
                     LIMIT {count}''')
         user_id = [df.collect()[i][0] for i in range(df.count())]
         return user_id
+    
+    # pick a random workspace(s)
+    def randomWorkspaceIds(self, count:int = 1) -> list:
+        df = self.spark.read\
+            .option("database", self.database)\
+                .option("collection", "workspace_col")\
+                    .format("com.mongodb.spark.sql.DefaultSource").load()
+        df.createOrReplaceTempView('workspace_col')
+        df = self.sqlC.sql(f'''SELECT _id FROM workspace_col
+                    Order By RAND()
+                    LIMIT {count}''')
+        workspace_id = [df.collect()[i][0][0] for i in range(df.count())]
+        return workspace_id
     
     # find all workspaces a user is in
     def workspaceByUser(self, user_id: int) -> list:
@@ -80,27 +93,34 @@ class SparkQuery:
                            AND array_contains(member_ids, {user_id_2})''')
         dir_workspace_ids = []
         for row in df.collect():
-            dir_workspace_ids.append(row[0][0])
+            dir_workspace_ids.append(row[0])
         return dir_workspace_ids
+    
+    # find all users in a workspace
+    def usersInWorkspace(self, workspace_id)->list:
+        df = self.spark.read\
+                .option("database", self.database)\
+                    .option("collection", "workspace_col")\
+                        .format("com.mongodb.spark.sql.DefaultSource").load()
+        df.createOrReplaceTempView('workspace_col')
+        df = self.sqlC.sql(f"""select members from workspace_col 
+                           where _id.oid = '{workspace_id}'""")
+        dir_member_ids = df.collect()[0][0]
+        return dir_member_ids
+
                        
 def main():
     SQ = SparkQuery('slack_database','user_col')
     SQ.checkSchema()
-    randomId = SQ.randomUsersIds(10)
-    print(randomId)
-    workspacesForUser = SQ.workspaceByUser(randomId[0])
+    userIds = SQ.randomUsersIds(10)
+    print(userIds)
+    workspacesForUser = SQ.workspaceByUser(userIds[0])
     print(workspacesForUser)
-    dir_channels = SQ.dirChannelMessages(randomId[0], randomId[1])
+    dir_channels = SQ.dirChannelMessages(userIds[0], userIds[1])
+    print(dir_channels)
+    workspaceIds = SQ.randomWorkspaceIds(10)
+    usersForWorkspace = SQ.usersInWorkspace(workspaceIds[0])
+    print(usersForWorkspace)
 
 if __name__ == '__main__':
     main()
-
-# ORDER BY RAND()
-# LIMIT 1
-
-# data = sqlC.read.format('com.mongodb.spark.sql.DefaultSource').option('uri', mongo_ip + 'col').load()
-# data.createOrReplaceTempView('col')
-# data = sqlC.sql('SELECT * FROM col')
-# data.show()
-# df = spark.read.format('mongodb').load()
-# df.printSchema()
