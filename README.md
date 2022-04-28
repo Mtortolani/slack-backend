@@ -1,20 +1,7 @@
 # slack-backend
 DS4300 Final Project
 
-Replicating Slack’s backend data architecture and basic functionalities with AWS Cloud, NoSQL, and Distributed Computing technologies.
+Members : Brinda Dhawan, Marco Tortolani, Emily Wang, Xinyu Wu, Jason Zhang
 
-## Redis Data Structure
-<b>Users</b>: key = user_{id} -> value = hashmap: {direct_channels: [list of user ids], workspaces: [list of workspace ids]}, Ex. user_1 -> {direct_channels: [2,3], workspaces: [10,14]} <br>
-<b>Direct Channels</b>: key = dc_{smaller user id}_{larger user id} -> value = [list of message ids], Ex. dc_1_2 -> [1,6,29]<br>
-<b>Messages</b>: key = m_{id}_{user/sender id} -> value = message string, Ex. m_3_5 -> "Hello World" <br>
-<b>Workspaces</b>: key = workspace_{id} -> value = hashmap: {users: [list of user ids], channels: [list of channel ids]}, Ex. workspace_17 -> {users: [1,2,3,6], channels: [4,16,19,100]}<br>
-<b>Channels</b>: key = channel_{id} -> value = hashmap: {users: [list of user ids], messages: [list of message ids]}, Ex. channel_19 -> {users: [1,3], messages: [300,423]}
-
-## Note
-Can't store Redis data structures within one another, Ex. Can't store list inside hashset
-
-## Resources
-https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-example-creating-buckets.html
-
-## Tips
-Cmd + Shift + V to preview Markdown File
+### Abstract
+Slack is a popular communications platform that has workspaces, which contain channels and direct messages where users interact with one another. In this project, we use Python to replicate Slack’s backend and performance test two different databases — MongoDB and Apache Spark — and their ability to query and retrieve randomized data. Based on our preconceptions, we expected Spark to be faster, but MongoDB ended up being significantly more efficient since Spark relies on Spark SQL Tables and therefore required more time to convert the MongoDB document-style database to SQL table-style data. 
